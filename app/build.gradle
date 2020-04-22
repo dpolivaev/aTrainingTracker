@@ -62,6 +62,7 @@ android {
         //debug issues in Travis
         textReport true
         textOutput 'stdout'
+        abortOnError false
     }
 
     packagingOptions {
