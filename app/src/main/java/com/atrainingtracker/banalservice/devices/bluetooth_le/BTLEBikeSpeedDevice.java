@@ -23,11 +23,14 @@ import android.util.Log;
 
 import com.atrainingtracker.banalservice.BANALService;
 import com.atrainingtracker.banalservice.devices.DeviceType;
+import com.atrainingtracker.banalservice.sensor.MySensor;
 import com.atrainingtracker.banalservice.sensor.MySensorManager;
+import com.atrainingtracker.banalservice.sensor.SensorType;
 
 public class BTLEBikeSpeedDevice extends BTLEBikeDevice {
     private static final String TAG = "BTLEBikeSpeedDevice";
     private static final boolean DEBUG = BANALService.DEBUG & false;
+    private MySensor<Double> mPowerSensor;
 
     /**
      * constructor
@@ -42,6 +45,18 @@ public class BTLEBikeSpeedDevice extends BTLEBikeDevice {
         if (DEBUG) Log.i(TAG, "addSensors()");
 
         addSpeedAndDistanceSensors();
+        addCadenceSensor();
+        mPowerSensor = new MySensor<Double>(this, SensorType.POWER);
+        addSensor(mPowerSensor);
+        mSpeedSensor.addSensorListener(new MySensor.SensorListener<Double>() {
+            @Override
+            public void newValue(Double speed) {
+                double r = speed *  5.843;
+                mCadenceSensor.newValue(r);
+                double power = ((0.0011 * r + 0.0053) * r + 0.5157) * r;
+                mPowerSensor.newValue(power);
+            }
+        });
     }
 
 }
